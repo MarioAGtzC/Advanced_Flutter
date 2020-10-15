@@ -7,14 +7,19 @@ import 'package:stripe_app/src/bloc/pagar/pagar_bloc.dart';
 import 'package:stripe_app/src/data/tarjetas.dart';
 import 'package:stripe_app/src/helpers/helpers.dart';
 import 'package:stripe_app/src/pages/tarjeta_page.dart';
+import 'package:stripe_app/src/services/stripe_service.dart';
 import 'package:stripe_app/src/widgets/total_pay_button.dart';
 
 class HomePage extends StatelessWidget {
+  final stripeService = new StripeService();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    // ignore: close_sinks
+    final pagarBloc = context.bloc<PagarBloc>();
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         centerTitle: true,
         title: Text('Pagar'),
@@ -22,7 +27,24 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () async {
-              mostrarAlerta(context, 'Hola', 'Mundo');
+              mostrarLoading(context);
+
+              final amount = pagarBloc.state.montoPagarString;
+              final currency = pagarBloc.state.moneda;
+
+              final resp = await this.stripeService.pagarConNuevaTarjeta(
+                amount: amount,
+                currency: currency
+              );
+              
+              Navigator.pop(context);
+
+              if(resp.ok) {
+                mostrarAlerta(context, 'Tarjeta OK', 'Todo correcto');
+              } else {
+                mostrarAlerta(context, 'Algo salió mal', resp.msg);
+              }
+              // mostrarAlerta(context, 'Hola', 'Mundo');
               // mostrarLoading(context);
               // await Future.delayed(Duration(seconds: 1));
               // Navigator.pop(context);
