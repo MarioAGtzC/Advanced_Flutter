@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
+
+import 'package:stripe_app/src/bloc/pagar/pagar_bloc.dart';
 
 import 'package:stripe_app/src/data/tarjetas.dart';
 import 'package:stripe_app/src/helpers/helpers.dart';
@@ -43,6 +46,7 @@ class HomePage extends StatelessWidget {
                 final tarjeta = tarjetas[i];
                 return GestureDetector(
                   onTap: () {
+                    context.bloc<PagarBloc>().add(OnSeleccionarTarjeta(tarjeta));
                     Navigator.push(context, navegarFadeIn(context, TarjetaPage()));
                   },
                   child: Hero(
