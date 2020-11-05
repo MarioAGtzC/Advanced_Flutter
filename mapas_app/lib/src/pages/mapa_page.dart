@@ -27,10 +27,17 @@ class _MapaPageState extends State<MapaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: BlocBuilder<MiUbicacionBloc, MiUbicacionState>(
-          builder: (context, state) => crearMapa(state),
-        )
+      body: Stack(
+        children: [
+          BlocBuilder<MiUbicacionBloc, MiUbicacionState>(
+            builder: (context, state) => crearMapa(state),
+          ),
+          Positioned(
+            top: 10,
+            child: SearchBar()
+          ),
+          MarcadorManual(),
+        ],
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -55,19 +62,20 @@ class _MapaPageState extends State<MapaPage> {
       zoom: 15
     );
 
-    return SafeArea(
-      child: GoogleMap(
-        initialCameraPosition: cameraPosition,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: false,
-        zoomControlsEnabled: false,
-        onMapCreated: mapaBloc.initMapa,
-        polylines: mapaBloc.state.polylines.values.toSet(),
-        onCameraMove: (cameraPosition) {
-          mapaBloc.add(OnMovioMapa(cameraPosition.target));
-        },
-      ),
+    return BlocBuilder<MapaBloc, MapaState>(
+      builder: (context, _) {
+        return GoogleMap(
+          initialCameraPosition: cameraPosition,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          onMapCreated: mapaBloc.initMapa,
+          polylines: mapaBloc.state.polylines.values.toSet(),
+          onCameraMove: (cameraPosition) {
+            mapaBloc.add(OnMovioMapa(cameraPosition.target));
+          },
+        );
+      },
     );
-    // Text('${state.ubicacion.latitude}, ${state.ubicacion.longitude}');
   }
 }
